@@ -36,8 +36,8 @@ operación seleccionada.
 #  Ruta a los archivos
 # ___________________________________________________
 
-
-crimefile = 'crime-utf8.csv'
+# C:\Users\home\Desktop\LABORATORIOS\Reto3-202020-Template\Data\us_accidents_dis_2017.csv
+accidentsfile = 'us_accidents_dis_2017.csv'
 
 # ___________________________________________________
 #  Menu principal
@@ -50,8 +50,7 @@ def printMenu():
     print("Bienvenido")
     print("1- Inicializar Analizador")
     print("2- Cargar información de accidentes")
-    print("3- Requerimento 1")
-    print("4- Requerimento 2")
+    print("3- Accidentes en una fecha determinada")
     print("0- Salir")
     print("*******************************************")
 
@@ -67,16 +66,21 @@ while True:
         print("\nInicializando....")
         # cont es el controlador que se usará de acá en adelante
         cont = controller.init()
-
     elif int(inputs[0]) == 2:
-        print("\nCargando información de crimenes ....")
+        print("\nCargando información de accidentes ....")
+        controller.loadData(cont, accidentsfile)
+        print('Accidentes cargados: ' + str(controller.accidentsSize(cont)))
+        print('Altura del arbol: ' + str(controller.indexHeight(cont)))
+        print('Elementos en el arbol: ' + str(controller.indexSize(cont)))
+        print('Menor Llave: ' + str(controller.minKey(cont)))
+        print('Mayor Llave: ' + str(controller.maxKey(cont)))
 
     elif int(inputs[0]) == 3:
-        print("\nBuscando crimenes en un rango de fechas: ")
-
-    elif int(inputs[0]) == 4:
-        print("\nRequerimiento No 1 del reto 3: ")
-
+        print("\nBuscando accidentes en un fecha determinada: ")
+        accidents_date = input("Ingrese la fecha para conocer los accidentes")
+        number = controller.getCrimesByRangeCode(cont, accidents_date)
+        print("\n Total de crimenes en la fecha " +
+              accidents_date + " es: " + str(lt.size(number)))
     else:
         sys.exit(0)
 sys.exit(0)
