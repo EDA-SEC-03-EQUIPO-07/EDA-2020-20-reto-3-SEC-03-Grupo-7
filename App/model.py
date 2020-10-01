@@ -144,7 +144,7 @@ def accidentsSize(analyzer):
     """
     Número de libros en el catago
     """
-    return lt.size(analyzer['crimes'])
+    return lt.size(analyzer['accidents'])
 
 
 def indexHeight(analyzer):
@@ -171,9 +171,9 @@ def maxKey(analyzer):
     return om.maxKey(analyzer['dateIndex'])
 
 
-def getCrimesByRangeCode(analyzer, initialDate):
+def getCrimesByDate(analyzer, initialDate):
     accident_date = om.get(analyzer['dateIndex'], initialDate)
-    accident_number = om.Size(accident_date)
+    accident_number = om.size(accident_date)
     return accident_number
 
 # ==============================
