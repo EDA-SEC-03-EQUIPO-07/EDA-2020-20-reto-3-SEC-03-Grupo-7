@@ -173,7 +173,7 @@ def maxKey(analyzer):
 
 def getCrimesByDate(analyzer, initialDate):
     accident_date = om.get(analyzer['dateIndex'], initialDate)
-    accident_number = om.size(accident_date)
+    accident_number = m.size(accident_date)
     return accident_number
 
 # ==============================

@@ -80,7 +80,7 @@ while True:
         accidents_date = input("Ingrese la fecha para conocer los accidentes")
         number = controller.getCrimesByRangeCode(cont, accidents_date)
         print("\n Total de crimenes en la fecha " +
-              accidents_date + " es: " + str(lt.size(number)))
+              accidents_date + " es: " + str(number))
     else:
         sys.exit(0)
 sys.exit(0)
