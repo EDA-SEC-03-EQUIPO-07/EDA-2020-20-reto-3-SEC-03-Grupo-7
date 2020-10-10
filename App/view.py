@@ -35,9 +35,10 @@ operación seleccionada.
 # ___________________________________________________
 #  Ruta a los archivos
 # ___________________________________________________
-# C:\Users\home\Desktop\LABORATORIOS\Reto3-202020-Template\Data\us_accidents_small.csv
-# C:\Users\home\Desktop\LABORATORIOS\Reto3-202020-Template\Data\us_accidents_dis_2017.csv
-accidentsfile = 'us_accidents_small.csv'
+# us_accidents_small.csv
+# us_accidents_dis_2017.csv
+# us_accidents_dis_2016.csv
+accidentsfile = 'us_accidents_dis_2016.csv'
 
 # ___________________________________________________
 #  Menu principal
