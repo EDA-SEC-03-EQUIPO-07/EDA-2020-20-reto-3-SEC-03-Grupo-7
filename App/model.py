@@ -186,8 +186,12 @@ def getAccidentsBeforeDate(analyzer, initialDate):
     La fecha se debe ingresar siguiente el formato:(YYYYMM DD).
     Se debe indicar el total de accidentes ocurridos antes de la
     fecha indicada y la fecha en la que más accidentes se reportaron.
+
     """
-    pass
+    menor_llave = om.minKey(analyzer['dateIndex'])
+    total = om.values(analyzer['dateIndex'], menor_llave, initialDate)
+    return total
+
 
 # Requerimiento 3
 
@@ -199,7 +203,10 @@ def getAccidentsByRange(analyzer, initialDate, finalDate):
     número total de accidentes en ese rango de fechas,
     indicando la categoría de accidentes más reportadas en dicho rango.
     """
-    pass
+    values = om.values(analyzer['dateIndex'], initialDate, finalDate)
+    number = m.size(values)
+    return number
+
 # Requerimiento 4
 
 
@@ -214,13 +221,15 @@ def getAccidentsByRangeState(analyzer, initialDate, finalDate):
 
 
 def getAccidentsByRangeHours(analyzer, initialDate, finalDate):
-     """
+    """
     Se desea conocer para un rango de horas dado (hora inicial y hora final), el total de accidentes
     registrados agrupados por severidad Igualmente se desea conocer el porcentaje que ese número
     representa contra el total de accidentes reportados.
     """
     pass
 # Requerimiento 6
+
+
 def getAccidentsGeographicalArea(analyzer, length, latitude, radio):
     """
     Dada una latitud y una longitud, tomado como punto central, y un radio dado (por
