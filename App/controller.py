@@ -101,7 +101,7 @@ def maxKey(analyzer):
     """
     return model.maxKey(analyzer)
 
-
+# Requerimiento 1
 def getCrimesByRangeCode(analyzer, initialDate):
     """
     Retorna el total de crimenes en una
@@ -109,3 +109,63 @@ def getCrimesByRangeCode(analyzer, initialDate):
     """
     initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
     return model.getCrimesByDate(analyzer, initialDate.date())
+
+# Requerimiento 2
+def getAccidentsBeforeDate(analyzer, initialDate):
+    """
+    Se desea conocer el total de accidentes ocurridos antes de una fecha específica.
+    La fecha se debe ingresar siguiente el formato:(YYYYMM DD). 
+    Se debe indicar el total de accidentes ocurridos antes de la
+    fecha indicada y la fecha en la que más accidentes se reportaron.
+    """
+    initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
+    return model.getAccidentsBeforeDate(analyzer, initialDate.date())
+# Requerimiento 3
+def getAccidentsByRange(analyzer, initialDate, finalDate):
+    """
+    Retorna el total de crimenes en un rango de fechas y indicando la categoría de
+    accidentes más reportadas en dicho rango. Se debe responder con el
+    número total de accidentes en ese rango de fechas,
+    indicando la categoría de accidentes más reportadas en dicho rango. 
+    """
+    initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
+    finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
+    return model.getAccidentsByRange(analyzer, initialDate.date(),
+                                  finalDate.date())
+# Requerimiento 4
+def getAccidentsByRangeState(analyzer, initialDate, finalDate):
+    """
+    Se desea conocer para un rango de fechas el estado que más accidentes tiene
+    reportados. El usuario ingresa una fecha inicial y una fecha final en formato: YYYY MM DD. Se
+    debe retornar la fecha con más accidentes reportados.
+    """ 
+    initialDate = datetime.datetime.strptime(initialDate, '%Y-%m-%d')
+    finalDate = datetime.datetime.strptime(finalDate, '%Y-%m-%d')
+    return model.getAccidentsByRangeState(analyzer, initialDate.date(),
+                                  finalDate.date())
+# Requerimiento 5
+def getAccidentsByRangeHours(analyzer, initialDate, finalDate):
+    """
+    Se desea conocer para un rango de horas dado (hora inicial y hora final), el total de accidentes 
+    registrados agrupados por severidad Igualmente se desea conocer el porcentaje que ese número
+    representa contra el total de accidentes reportados. 
+    """ 
+    initialDate = datetime.datetime.strptime(initialDate, '%h-%m-%s')
+    finalDate = datetime.datetime.strptime(finalDate, '%h-%m-%s')
+    return model.getAccidentsByRangeHours(analyzer, initialDate.date(),
+                                  finalDate.date())
+
+# Requerimiento 6
+def getAccidentsGeographicalArea(analyzer, length, latitude, radio):
+    """
+    Dada una latitud y una longitud, tomado como punto central, y un radio dado (por
+    ejemplo una milla), informar cuántos accidentes en total se han producido en
+    ese radio desde el punto de búsqueda. El resultado se debe presentar
+    agrupado por el día de la semana en la que han ocurrido los accidentes y el total de
+    accidentes reportados. 
+    """
+    return model.getAccidentsByRangeHours(analyzer, initialDate.date(),
+                                  finalDate.date())
+
+
+

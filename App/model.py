@@ -54,7 +54,7 @@ def newAnalyzer():
                 }
 
     analyzer['accidents'] = lt.newList('SINGLE_LINKED', compareIds)
-    analyzer['dateIndex'] = om.newMap(omaptype='BST',
+    analyzer['dateIndex'] = om.newMap(omaptype='RBT',
                                       comparefunction=compareDates)
     return analyzer
 
@@ -171,10 +171,38 @@ def maxKey(analyzer):
     return om.maxKey(analyzer['dateIndex'])
 
 
-def getCrimesByDate(analyzer, initialDate):
-    accident_date = om.get(analyzer['dateIndex'], initialDate)
-    accident_number = m.size(accident_date)
-    return accident_number
+# Requerimiento 4
+
+
+def getAccidentsByRangeState(analyzer, initialDate, finalDate):
+    """
+    Se desea conocer para un rango de fechas el estado que más accidentes tiene
+    reportados. El usuario ingresa una fecha inicial y una fecha final en formato: YYYY MM DD. Se
+    debe retornar la fecha con más accidentes reportados.
+    """
+    pass
+# Requerimiento 5
+
+
+def getAccidentsByRangeHours(analyzer, initialDate, finalDate):
+    """
+    Se desea conocer para un rango de horas dado (hora inicial y hora final), el total de accidentes
+    registrados agrupados por severidad Igualmente se desea conocer el porcentaje que ese número
+    representa contra el total de accidentes reportados.
+    """
+    pass
+# Requerimiento 6
+
+
+def getAccidentsGeographicalArea(analyzer, length, latitude, radio):
+    """
+    Dada una latitud y una longitud, tomado como punto central, y un radio dado (por
+    ejemplo una milla), informar cuántos accidentes en total se han producido en
+    ese radio desde el punto de búsqueda. El resultado se debe presentar
+    agrupado por el día de la semana en la que han ocurrido los accidentes y el total de
+    accidentes reportados. 
+    """
+    pass
 
 # ==============================
 # Funciones de Comparacion
