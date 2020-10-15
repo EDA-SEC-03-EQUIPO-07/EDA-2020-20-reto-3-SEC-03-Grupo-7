@@ -174,9 +174,20 @@ def maxKey(analyzer):
 
 
 def getCrimesByDate(analyzer, initialDate):
-    accident_date = om.get(analyzer['dateIndex'], initialDate)
-    accident_number = m.size(accident_date)
-    return accident_number
+    #valores = lt.newList('SINGLE_LINKED', compareIds)
+    accident_date = me.getValue(om.get(analyzer['dateIndex'], initialDate))
+    print(accident_date.keys())
+    print(m.keySet(accident_date['offenseIndex']))
+
+    iterar = it.newIterator(accident_date)
+    accident_values = 0
+    while (it.hasNext(iterar)):
+        lstdate = it.next(iterar)
+        accident_values += lt.size(lstdate['accidents'])
+
+    return accident_date
+
+
 # Requerimiento 2
 
 
@@ -188,24 +199,43 @@ def getAccidentsBeforeDate(analyzer, initialDate):
     fecha indicada y la fecha en la que más accidentes se reportaron.
 
     """
-    menor_llave = om.minKey(analyzer['dateIndex'])
-    total = om.values(analyzer['dateIndex'], menor_llave, initialDate)
-    return total
+    menor_llave = om.minKey(analyzer['dateIndex'])  # obtenemos la menor fecha
+    # obtenemos el numero de accidentes
+
+    total = 0
+    total_keys = om.keys(analyzer['dateIndex'], menor_llave, initialDate)
+    iterador = it.newIterator(total_keys)
+    date = ""  # fecha en la que ocurren más accidentes
+    mayor_cantidad_accidentes = 0  # mayor numero de accidentes en una fecha
+    while (it.hasNext(iterador)):  # iteramos las llaves
+        llave = it.next(iterador)
+        # obtenemos la cantidad de accidentes en una fecha
+        obtener = om.get(analyzer["dateIndex"], llave)
+        lista = (me.getValue(obtener))["lstaccidents"]
+        cantidad = lista["size"]
+        total += cantidad
+        if cantidad > mayor_cantidad_accidentes:
+            mayor_cantidad_accidentes = cantidad  # asignamos el numero de accidentes
+            date = llave  # asiganamos la fecha
+
+    return (total, date)  # valor retornado
 
 
 # Requerimiento 3
 
-
-def getAccidentsByRange(analyzer, initialDate, finalDate):
+# def getAccidentsByRange(analyzer, initialDate, finalDate):
     """
     Retorna el total de crimenes en un rango de fechas y indicando la categoría de
     accidentes más reportadas en dicho rango. Se debe responder con el
     número total de accidentes en ese rango de fechas,
     indicando la categoría de accidentes más reportadas en dicho rango.
     """
-    values = om.values(analyzer['dateIndex'], initialDate, finalDate)
-    number = m.size(values)
-    return number
+    #values = om.values(analyzer['dateIndex'], initialDate, finalDate)
+    #number = m.size(values)
+    #iterator = it.newIterator(values)
+    # while (it.hasNext(iterator)):
+
+    # return number
 
 # Requerimiento 4
 
