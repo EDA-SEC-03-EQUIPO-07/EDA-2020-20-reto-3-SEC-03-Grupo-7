@@ -54,6 +54,7 @@ def printMenu():
     print("3- Accidentes en una fecha determinada")
     print("4- Accidentes antes de una fechas determinada")
     print("5- Accidentes en un rango de fechas determinada")
+    print("6- Accidentes en un Estado en un rango de fechas determinada")
     print("0- Salir")
     print("*******************************************")
 
@@ -82,14 +83,14 @@ while True:
         print("\nBuscando accidentes en un fecha determinada: ")
         accidents_date = input("Ingrese la fecha para conocer los accidentes")
         number = controller.getCrimesByRangeCode(cont, accidents_date)
-        print("\n Total de crimenes en la fecha " +
+        print("\n Total de accidentes en la fecha " +
               accidents_date + " es: " + str(number))
 
     elif int(inputs[0]) == 4:
         print("\nBuscando accidentes en un fecha determinada: ")
         accidents_date = input("Ingrese la fecha para conocer los accidentes")
         number = controller.getAccidentsBeforeDate(cont, accidents_date)
-        print("\n Total de crimenes antes de la fecha " +
+        print("\n Total de accidentes antes de la fecha " +
               accidents_date + " es: " + str(number))
 
     elif int(inputs[0]) == 5:
@@ -98,7 +99,16 @@ while True:
         accidents_date_1 = input("Ingrese la fecha final")
         number = controller.getAccidentsByRange(
             cont, accidents_date, accidents_date_1)
-        print("\n Total de crimenes entre la fecha " +
+        print("\n Total de accidentes entre la fecha " +
+              accidents_date + " y la fecha " + accidents_date_1 + " es: " + str(number))
+
+    elif int(inputs[0]) == 6:
+        print("\nBuscando accidentes en un Estado en un fecha determinada: ")
+        accidents_date = input("Ingrese la fecha inicial")
+        accidents_date_1 = input("Ingrese la fecha final")
+        number = controller.getAccidentsByRangeState(
+            cont, accidents_date, accidents_date_1)
+        print("\n Total de accidentes en un Estado entre la fecha " +
               accidents_date + " y la fecha " + accidents_date_1 + " es: " + str(number))
     else:
         sys.exit(0)

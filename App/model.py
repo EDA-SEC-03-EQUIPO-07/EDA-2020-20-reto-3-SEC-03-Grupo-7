@@ -170,27 +170,53 @@ def maxKey(analyzer):
     """
     return om.maxKey(analyzer['dateIndex'])
 
+
 # Requerimiento 1
-
-
+# ["first"]["info"]["offenseIndex"]
 def getCrimesByDate(analyzer, initialDate):
-    #valores = lt.newList('SINGLE_LINKED', compareIds)
-    accident_date = me.getValue(om.get(analyzer['dateIndex'], initialDate))
-    print(accident_date.keys())
-    print(m.keySet(accident_date['offenseIndex']))
+    #mapa = m.newMap(numelements=30, maptype='PROBING',comparefunction=compareOffenses)
+    lista_1 = lt.newList('SINGLE_LINKED', compareDates)
+    lista_2 = lt.newList('SINGLE_LINKED', compareDates)
+    lista_3 = lt.newList('SINGLE_LINKED', compareDates)
+    lista_4 = lt.newList('SINGLE_LINKED', compareDates)
+    obtener_2 = om.get(analyzer["dateIndex"], initialDate)
+    lista_2 = me.getValue(obtener_2)["lstaccidents"]
+    cantidad_2 = lista_2["size"]
+    v = om.valueSet(obtener_2)
+    iterator = it.newIterator(v)
+    dicc = {}
+    while (it.hasNext(iterator)):
+        lista_values = it.next(iterator)
+        pri = lista_values["lstaccidents"]
+        seg = pri["first"]
+        if seg["info"]["Severity"] == "1":
+            agregar_1 = lt.addFirst(lista_1, 1)
+            #dicc[seg["info"]["Severity"]] = agregar_1
 
-    iterar = it.newIterator(accident_date)
-    accident_values = 0
-    while (it.hasNext(iterar)):
-        lstdate = it.next(iterar)
-        accident_values += lt.size(lstdate['accidents'])
+        elif seg["info"]["Severity"] == "2":
+            agregar_2 = lt.addFirst(lista_2, 1)
+            #dicc[seg["info"]["Severity"]] = agregar_2
 
-    return accident_date
+        elif seg["info"]["Severity"] == "3":
+            agregar_3 = lt.addFirst(lista_3, 1)
+            #dicc[seg["info"]["Severity"]] = agregar_3
+
+        else:
+            agregar_4 = lt.addFirst(lista_4, 1)
+            #dicc[seg["info"]["Severity"]] = agregar_4
+
+    if lt.size(lista_1) > 0:
+        dicc["1"] = lt.size(lista_1)
+    if lt.size(lista_2) > 0:
+        dicc["2"] = lt.size(lista_2)
+    if lt.size(lista_3) > 0:
+        dicc["3"] = lt.size(lista_3)
+    if lt.size(lista_4) > 0:
+        dicc["4"] = lt.size(lista_4)
+    return (cantidad_2, dicc)
 
 
 # Requerimiento 2
-
-
 def getAccidentsBeforeDate(analyzer, initialDate):
     """
     Se desea conocer el total de accidentes ocurridos antes de una fecha específica.
@@ -199,11 +225,12 @@ def getAccidentsBeforeDate(analyzer, initialDate):
     fecha indicada y la fecha en la que más accidentes se reportaron.
 
     """
+    number_date = om.rank(analyzer['dateIndex'], initialDate)
+    date_last = om.select(analyzer['dateIndex'], number_date-1)
     menor_llave = om.minKey(analyzer['dateIndex'])  # obtenemos la menor fecha
     # obtenemos el numero de accidentes
-
     total = 0
-    total_keys = om.keys(analyzer['dateIndex'], menor_llave, initialDate)
+    total_keys = om.keys(analyzer['dateIndex'], menor_llave, date_last)
     iterador = it.newIterator(total_keys)
     date = ""  # fecha en la que ocurren más accidentes
     mayor_cantidad_accidentes = 0  # mayor numero de accidentes en una fecha
@@ -216,37 +243,58 @@ def getAccidentsBeforeDate(analyzer, initialDate):
         total += cantidad
         if cantidad > mayor_cantidad_accidentes:
             mayor_cantidad_accidentes = cantidad  # asignamos el numero de accidentes
-            date = llave  # asiganamos la fecha
-
+            date = str(llave)  # asiganamos la fecha
     return (total, date)  # valor retornado
 
 
 # Requerimiento 3
 
-# def getAccidentsByRange(analyzer, initialDate, finalDate):
+def getAccidentsByRange(analyzer, initialDate, finalDate):
     """
     Retorna el total de crimenes en un rango de fechas y indicando la categoría de
     accidentes más reportadas en dicho rango. Se debe responder con el
     número total de accidentes en ese rango de fechas,
     indicando la categoría de accidentes más reportadas en dicho rango.
     """
-    #values = om.values(analyzer['dateIndex'], initialDate, finalDate)
-    #number = m.size(values)
-    #iterator = it.newIterator(values)
-    # while (it.hasNext(iterator)):
+    l = om.values(analyzer['dateIndex'], initialDate, finalDate)
+    iterator = it.newIterator(l)
+    diccionario = {}
+    accidents = 0
+    while (it.hasNext(iterator)):
+        lista_values = it.next(iterator)
+        accidents += lt.size(lista_values["lstaccidents"])
 
-    # return number
+        if lista_values["lstaccidents"]["first"]["info"]["Severity"] in diccionario:
+            diccionario[lista_values["lstaccidents"]
+                        ["first"]["info"]["Severity"]] += 1
+        else:
+            diccionario[lista_values["lstaccidents"]
+                        ["first"]["info"]["Severity"]] = 1
+    return (accidents, diccionario)
+
 
 # Requerimiento 4
-
-
 def getAccidentsByRangeState(analyzer, initialDate, finalDate):
     """
     Se desea conocer para un rango de fechas el estado que más accidentes tiene
     reportados. El usuario ingresa una fecha inicial y una fecha final en formato: YYYY MM DD. Se
     debe retornar la fecha con más accidentes reportados.
     """
-    pass
+    l = om.values(analyzer['dateIndex'], initialDate, finalDate)
+    iterator = it.newIterator(l)
+    diccionario = {}
+    accidents = 0
+    while (it.hasNext(iterator)):
+        lista_values = it.next(iterator)
+        accidents += lt.size(lista_values["lstaccidents"])
+
+        if lista_values["lstaccidents"]["first"]["info"]["State"] in diccionario:
+            diccionario[lista_values["lstaccidents"]
+                        ["first"]["info"]["State"]] += 1
+        else:
+            diccionario[lista_values["lstaccidents"]
+                        ["first"]["info"]["State"]] = 1
+    return (accidents, diccionario)
 # Requerimiento 5
 
 
@@ -266,7 +314,7 @@ def getAccidentsGeographicalArea(analyzer, length, latitude, radio):
     ejemplo una milla), informar cuántos accidentes en total se han producido en
     ese radio desde el punto de búsqueda. El resultado se debe presentar
     agrupado por el día de la semana en la que han ocurrido los accidentes y el total de
-    accidentes reportados. 
+    accidentes reportados.
     """
     pass
 
