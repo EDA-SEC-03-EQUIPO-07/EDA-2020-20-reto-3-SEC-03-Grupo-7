@@ -172,9 +172,7 @@ def maxKey(analyzer):
 
 
 # Requerimiento 1
-# ["first"]["info"]["offenseIndex"]
 def getCrimesByDate(analyzer, initialDate):
-    mapa = om.newMap(omaptype='RBT', comparefunction=compareDates)
     lista_1 = lt.newList('SINGLE_LINKED', compareDates)
     lista_2 = lt.newList('SINGLE_LINKED', compareDates)
     lista_3 = lt.newList('SINGLE_LINKED', compareDates)
