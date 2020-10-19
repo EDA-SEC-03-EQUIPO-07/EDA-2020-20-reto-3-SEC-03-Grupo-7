@@ -174,7 +174,7 @@ def maxKey(analyzer):
 # Requerimiento 1
 # ["first"]["info"]["offenseIndex"]
 def getCrimesByDate(analyzer, initialDate):
-    #mapa = m.newMap(numelements=30, maptype='PROBING',comparefunction=compareOffenses)
+    mapa = om.newMap(omaptype='RBT', comparefunction=compareDates)
     lista_1 = lt.newList('SINGLE_LINKED', compareDates)
     lista_2 = lt.newList('SINGLE_LINKED', compareDates)
     lista_3 = lt.newList('SINGLE_LINKED', compareDates)
@@ -189,21 +189,22 @@ def getCrimesByDate(analyzer, initialDate):
         lista_values = it.next(iterator)
         pri = lista_values["lstaccidents"]
         seg = pri["first"]
-        if seg["info"]["Severity"] == "1":
-            agregar_1 = lt.addFirst(lista_1, 1)
-            #dicc[seg["info"]["Severity"]] = agregar_1
+        ter = seg["info"]
+        if ter["Severity"] == "1":
+            lt.addLast(lista_1, lista_values)
+            # dicc[seg["info"]["Severity"]] = agregar_1
 
-        elif seg["info"]["Severity"] == "2":
-            agregar_2 = lt.addFirst(lista_2, 1)
-            #dicc[seg["info"]["Severity"]] = agregar_2
+        elif ter["Severity"] == "2":
+            lt.addLast(lista_2, lista_values)
+            # dicc[seg["info"]["Severity"]] = agregar_2
 
-        elif seg["info"]["Severity"] == "3":
-            agregar_3 = lt.addFirst(lista_3, 1)
-            #dicc[seg["info"]["Severity"]] = agregar_3
+        elif ter["Severity"] == "3":
+            lt.addLast(lista_3, lista_values)
+            # dicc[seg["info"]["Severity"]] = agregar_3
 
         else:
-            agregar_4 = lt.addFirst(lista_4, 1)
-            #dicc[seg["info"]["Severity"]] = agregar_4
+            lt.addLast(lista_4, lista_values)
+            # dicc[seg["info"]["Severity"]] = agregar_4
 
     if lt.size(lista_1) > 0:
         dicc["1"] = lt.size(lista_1)
