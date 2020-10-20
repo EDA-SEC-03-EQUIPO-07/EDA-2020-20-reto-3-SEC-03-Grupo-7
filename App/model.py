@@ -269,24 +269,41 @@ def getAccidentsByRangeState(analyzer, initialDate, finalDate):
     reportados. El usuario ingresa una fecha inicial y una fecha final en formato: YYYY MM DD. Se
     debe retornar la fecha con más accidentes reportados.
     """
-    l = om.values(analyzer['dateIndex'], initialDate, finalDate)
-    iterator = it.newIterator(l)
+    dicc_State = {}
+    total_keys = om.keys(analyzer['dateIndex'], initialDate, finalDate)
+    iterador = it.newIterator(total_keys)
+    date = ""  # fecha en la que ocurren más accidentes
+    mayor_cantidad_accidentes = 0  # mayor numero de accidentes en una fecha
+    while (it.hasNext(iterador)):  # iteramos las llaves
+        llave = it.next(iterador)
+        # obtenemos la cantidad de accidentes en una fecha
+        obtener = om.get(analyzer["dateIndex"], llave)
+        values = (me.getValue(obtener))["lstaccidents"]
+        cantidad = values["size"]
+        ite = it.newIterator(values)
+        while (it.hasNext(ite)):
+            valor = it.next(ite)
+            if valor["State"] in dicc_State:
+                dicc_State[valor["State"]] += 1
+            else:
+                dicc_State[valor["State"]] = 1
+
+        if cantidad > mayor_cantidad_accidentes:
+            mayor_cantidad_accidentes = cantidad  # asignamos el numero de accidentes
+            date = str(llave)  # asiganamos la fecha
+
     diccionario = {}
-    accidents = 0
-    while (it.hasNext(iterator)):
-        lista_values = it.next(iterator)
-        accidents += lt.size(lista_values["lstaccidents"])
+    name = ""
+    number = 0
+    for re in dicc_State:
+        if dicc_State[re] > number:
+            name = re
+            number = dicc_State[re]
+    diccionario[name] = number
+    return (date, diccionario)  # valor retornado
 
-        if lista_values["lstaccidents"]["first"]["info"]["State"] in diccionario:
-            diccionario[lista_values["lstaccidents"]
-                        ["first"]["info"]["State"]] += 1
-        else:
-            diccionario[lista_values["lstaccidents"]
-                        ["first"]["info"]["State"]] = 1
-    return (accidents, diccionario)
+
 # Requerimiento 5
-
-
 def getAccidentsByRangeHours(analyzer, initialDate, finalDate):
     """
     Se desea conocer para un rango de horas dado (hora inicial y hora final), el total de accidentes
