@@ -195,26 +195,32 @@ def getAccidentsBeforeDate(analyzer, initialDate):
     fecha indicada y la fecha en la que más accidentes se reportaron.
 
     """
-    number_date = om.rank(analyzer['dateIndex'], initialDate)
-    date_last = om.select(analyzer['dateIndex'], number_date-1)
-    menor_llave = om.minKey(analyzer['dateIndex'])  # obtenemos la menor fecha
-    # obtenemos el numero de accidentes
-    total = 0
-    total_keys = om.keys(analyzer['dateIndex'], menor_llave, date_last)
-    iterador = it.newIterator(total_keys)
-    date = ""  # fecha en la que ocurren más accidentes
-    mayor_cantidad_accidentes = 0  # mayor numero de accidentes en una fecha
-    while (it.hasNext(iterador)):  # iteramos las llaves
-        llave = it.next(iterador)
-        # obtenemos la cantidad de accidentes en una fecha
-        obtener = om.get(analyzer["dateIndex"], llave)
-        lista = (me.getValue(obtener))["lstaccidents"]
-        cantidad = lista["size"]
-        total += cantidad
-        if cantidad > mayor_cantidad_accidentes:
-            mayor_cantidad_accidentes = cantidad  # asignamos el numero de accidentes
-            date = str(llave)  # asiganamos la fecha
-    return (total, date)  # valor retornado
+    present = om.contains(analyzer['dateIndex'], initialDate)
+    if present == True:
+        number_date = om.rank(analyzer['dateIndex'], initialDate)
+        date_last = om.select(analyzer['dateIndex'], number_date-1)
+        # obtenemos la menor fecha
+        menor_llave = om.minKey(analyzer['dateIndex'])
+        # obtenemos el numero de accidentes
+        total = 0
+        total_keys = om.keys(analyzer['dateIndex'], menor_llave, date_last)
+        iterador = it.newIterator(total_keys)
+        date = ""  # fecha en la que ocurren más accidentes
+        mayor_cantidad_accidentes = 0  # mayor numero de accidentes en una fecha
+        while (it.hasNext(iterador)):  # iteramos las llaves
+            llave = it.next(iterador)
+            # obtenemos la cantidad de accidentes en una fecha
+            obtener = om.get(analyzer["dateIndex"], llave)
+            lista = (me.getValue(obtener))["lstaccidents"]
+            cantidad = lista["size"]
+            total += cantidad
+            if cantidad > mayor_cantidad_accidentes:
+                mayor_cantidad_accidentes = cantidad  # asignamos el numero de accidentes
+                date = str(llave)  # asiganamos la fecha
+        re = (total, date)
+    else:
+        re = "Ingrese otra fecha"
+    return re  # valor retornado
 
 
 # Requerimiento 3
@@ -226,23 +232,37 @@ def getAccidentsByRange(analyzer, initialDate, finalDate):
     número total de accidentes en ese rango de fechas,
     indicando la categoría de accidentes más reportadas en dicho rango.
     """
-    l = om.values(analyzer['dateIndex'], initialDate, finalDate)
+
+    l = om.keys(analyzer['dateIndex'], initialDate, finalDate)
     iterator = it.newIterator(l)
-    diccionario = {}
+    dicc_Severity = {}
     accidents = 0
     while (it.hasNext(iterator)):
-        lista_values = it.next(iterator)
-        accidents += lt.size(lista_values["lstaccidents"])
-        pri = lista_values["lstaccidents"]
-        seg = pri["first"]
-        if seg["info"]["Severity"] in diccionario:
-            diccionario[seg["info"]["Severity"]] += 1
-        else:
-            diccionario[seg["info"]["Severity"]] = 1
-    return (accidents, diccionario)
-
+        lista_keys = it.next(iterator)
+        keys = om.get(analyzer["dateIndex"], lista_keys)
+        lista = me.getValue(keys)["lstaccidents"]
+        cantidad = lista["size"]
+        accidents += cantidad
+        itera = it.newIterator(lista)
+        while (it.hasNext(itera)):
+            values = it.next(itera)
+            if values["Severity"] in dicc_Severity:
+                dicc_Severity[values["Severity"]] += 1
+            else:
+                dicc_Severity[values["Severity"]] = 1
+    dic = {}
+    name = ""
+    number = 0
+    for re in dicc_Severity:
+        if dicc_Severity[re] > number:
+            name = re
+            number = dicc_Severity[re]
+    dic[name] = number
+    return (accidents, dic)
 
 # Requerimiento 4
+
+
 def getAccidentsByRangeState(analyzer, initialDate, finalDate):
     """
     Se desea conocer para un rango de fechas el estado que más accidentes tiene
