@@ -26,6 +26,7 @@ from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
 from DISClib.ADT import map as m
 import datetime
+import math
 assert config
 
 """
@@ -50,11 +51,14 @@ def newAnalyzer():
     Retorna el analizador inicializado.
     """
     analyzer = {'accidents': None,
-                'dateIndex': None
+                'dateIndex': None,
+                'timeIndex': None
                 }
 
     analyzer['accidents'] = lt.newList('SINGLE_LINKED', compareIds)
     analyzer['dateIndex'] = om.newMap(omaptype='RBT',
+                                      comparefunction=compareDates)
+    analyzer['timeIndex'] = om.newMap(omaptype='RBT',
                                       comparefunction=compareDates)
     return analyzer
 
@@ -66,7 +70,21 @@ def addAccidents(analyzer, accident):
     """
     lt.addLast(analyzer['accidents'], accident)
     updateDateIndex(analyzer['dateIndex'], accident)
+    updateTimeIndex(analyzer['timeIndex'], accident)
     return analyzer
+
+
+def updateTimeIndex(map, accident):
+    accidentTime = getTime(accident['Start_Time'])
+    entry = om.get(map, accidentTime)
+    if entry is None:
+        timeentry = newDataEntry()
+        om.put(map, accidentTime, timeentry)
+    else:
+        timeentry = me.getValue(entry)
+    addDateIndex(timeentry, accident)
+    return map
+
 
 
 def updateDateIndex(map, accident):
@@ -82,7 +100,7 @@ def updateDateIndex(map, accident):
     crimedate = datetime.datetime.strptime(occurreddate, '%Y-%m-%d %H:%M:%S')
     entry = om.get(map, crimedate.date())
     if entry is None:
-        datentry = newDataEntry(accident)
+        datentry = newDataEntry()
         om.put(map, crimedate.date(), datentry)
     else:
         datentry = me.getValue(entry)
@@ -97,43 +115,45 @@ def addDateIndex(datentry, accident):
     el valor es una lista con los crimenes de dicho tipo en la fecha que
     se está consultando (dada por el nodo del arbol)
     """
-    lst = datentry['lstaccidents']
-    lt.addLast(lst, accident)
-    offenseIndex = datentry['offenseIndex']
-    offentry = m.get(offenseIndex, accident['Description'])
-    if (offentry is None):
-        entry = newOffenseEntry(accident['Description'], accident)
-        lt.addLast(entry['lstoffenses'], accident)
-        m.put(offenseIndex, accident['Description'], entry)
-    else:
-        entry = me.getValue(offentry)
-        lt.addLast(entry['lstoffenses'], accident)
+    lt.addLast(datentry['lstaccidents'], accident)
+    datentry[str(accident['Severity'])] += 1
+    datentry['total'] += 1
     return datentry
 
-
-def newDataEntry(accident):
+def newDataEntry():
     """
     Crea una entrada en el indice por fechas, es decir en el arbol
     binario.
     """
-    entry = {'offenseIndex': None, 'lstaccidents': None}
-    entry['offenseIndex'] = m.newMap(numelements=30,
-                                     maptype='PROBING',
-                                     comparefunction=compareOffenses)
+    entry = {'lstaccidents': None,'1':0,'2':0,'3':0,'4':0,'total':0}
     entry['lstaccidents'] = lt.newList('SINGLE_LINKED', compareDates)
-
     return entry
 
+#Función para fijar una fecha en intervalos de 30 minutos
+def getTime(date):
+    time = datetime.datetime.strptime(date,'%Y-%m-%d %H:%M:%S')
+    hour = time.hour
+    minute = time.minute
+    sMinute = ''
+    if minute >= 20 and minute <= 40:
+        sMinute = '30'
+    elif minute < 20:
+        sMinute = '00'
+    elif minute > 40:
+        if hour < 23:
+            sMinute = '00'
+            hour += 1
+        else:
+            sMinute = '59'
 
-def newOffenseEntry(offensegrp, accident):
-    """
-    Crea una entrada en el indice por tipo de crimen, es decir en
-    la tabla de hash, que se encuentra en cada nodo del arbol.
-    """
-    ofentry = {'offense': None, 'lstoffenses': None}
-    ofentry['offense'] = offensegrp
-    ofentry['lstoffenses'] = lt.newList('SINGLELINKED', compareOffenses)
-    return ofentry
+    
+    if hour >= 10:
+        sHour = str(hour)
+    else:
+        sHour = '0' + str(hour)
+
+    return sHour+':'+sMinute
+
 
 # ==============================
 # Funciones de consulta
@@ -172,48 +192,11 @@ def maxKey(analyzer):
 
 
 # Requerimiento 1
-# ["first"]["info"]["offenseIndex"]
 def getCrimesByDate(analyzer, initialDate):
-    #mapa = m.newMap(numelements=30, maptype='PROBING',comparefunction=compareOffenses)
-    lista_1 = lt.newList('SINGLE_LINKED', compareDates)
-    lista_2 = lt.newList('SINGLE_LINKED', compareDates)
-    lista_3 = lt.newList('SINGLE_LINKED', compareDates)
-    lista_4 = lt.newList('SINGLE_LINKED', compareDates)
-    obtener_2 = om.get(analyzer["dateIndex"], initialDate)
-    lista_2 = me.getValue(obtener_2)["lstaccidents"]
-    cantidad_2 = lista_2["size"]
-    v = om.valueSet(obtener_2)
-    iterator = it.newIterator(v)
-    dicc = {}
-    while (it.hasNext(iterator)):
-        lista_values = it.next(iterator)
-        pri = lista_values["lstaccidents"]
-        seg = pri["first"]
-        if seg["info"]["Severity"] == "1":
-            agregar_1 = lt.addFirst(lista_1, 1)
-            #dicc[seg["info"]["Severity"]] = agregar_1
-
-        elif seg["info"]["Severity"] == "2":
-            agregar_2 = lt.addFirst(lista_2, 1)
-            #dicc[seg["info"]["Severity"]] = agregar_2
-
-        elif seg["info"]["Severity"] == "3":
-            agregar_3 = lt.addFirst(lista_3, 1)
-            #dicc[seg["info"]["Severity"]] = agregar_3
-
-        else:
-            agregar_4 = lt.addFirst(lista_4, 1)
-            #dicc[seg["info"]["Severity"]] = agregar_4
-
-    if lt.size(lista_1) > 0:
-        dicc["1"] = lt.size(lista_1)
-    if lt.size(lista_2) > 0:
-        dicc["2"] = lt.size(lista_2)
-    if lt.size(lista_3) > 0:
-        dicc["3"] = lt.size(lista_3)
-    if lt.size(lista_4) > 0:
-        dicc["4"] = lt.size(lista_4)
-    return (cantidad_2, dicc)
+    obtener = om.get(analyzer["dateIndex"], initialDate)
+    value = me.getValue(obtener)
+    dicc = {'1':value['1'],'2':value['2'],'3':value['3'],'4':value['4']}
+    return dicc
 
 
 # Requerimiento 2
@@ -225,26 +208,32 @@ def getAccidentsBeforeDate(analyzer, initialDate):
     fecha indicada y la fecha en la que más accidentes se reportaron.
 
     """
-    number_date = om.rank(analyzer['dateIndex'], initialDate)
-    date_last = om.select(analyzer['dateIndex'], number_date-1)
-    menor_llave = om.minKey(analyzer['dateIndex'])  # obtenemos la menor fecha
-    # obtenemos el numero de accidentes
-    total = 0
-    total_keys = om.keys(analyzer['dateIndex'], menor_llave, date_last)
-    iterador = it.newIterator(total_keys)
-    date = ""  # fecha en la que ocurren más accidentes
-    mayor_cantidad_accidentes = 0  # mayor numero de accidentes en una fecha
-    while (it.hasNext(iterador)):  # iteramos las llaves
-        llave = it.next(iterador)
-        # obtenemos la cantidad de accidentes en una fecha
-        obtener = om.get(analyzer["dateIndex"], llave)
-        lista = (me.getValue(obtener))["lstaccidents"]
-        cantidad = lista["size"]
-        total += cantidad
-        if cantidad > mayor_cantidad_accidentes:
-            mayor_cantidad_accidentes = cantidad  # asignamos el numero de accidentes
-            date = str(llave)  # asiganamos la fecha
-    return (total, date)  # valor retornado
+    present = om.contains(analyzer['dateIndex'], initialDate)
+    if present == True:
+        number_date = om.rank(analyzer['dateIndex'], initialDate)
+        date_last = om.select(analyzer['dateIndex'], number_date)
+        # obtenemos la menor fecha
+        menor_llave = om.minKey(analyzer['dateIndex'])
+        # obtenemos el numero de accidentes
+        total = 0
+        total_keys = om.keys(analyzer['dateIndex'], menor_llave, date_last)
+        iterador = it.newIterator(total_keys)
+        date = ""  # fecha en la que ocurren más accidentes
+        mayor_cantidad_accidentes = 0  # mayor numero de accidentes en una fecha
+        while (it.hasNext(iterador)):  # iteramos las llaves
+            llave = it.next(iterador)
+            # obtenemos la cantidad de accidentes en una fecha
+            obtener = om.get(analyzer["dateIndex"], llave)
+            lista = (me.getValue(obtener))["lstaccidents"]
+            cantidad = lista["size"]
+            total += cantidad
+            if cantidad > mayor_cantidad_accidentes:
+                mayor_cantidad_accidentes = cantidad  # asignamos el numero de accidentes
+                date = str(llave)  # asiganamos la fecha
+        re = (total, date)
+    else:
+        re = "Ingrese otra fecha"
+    return re  # valor retornado
 
 
 # Requerimiento 3
@@ -256,59 +245,101 @@ def getAccidentsByRange(analyzer, initialDate, finalDate):
     número total de accidentes en ese rango de fechas,
     indicando la categoría de accidentes más reportadas en dicho rango.
     """
-    l = om.values(analyzer['dateIndex'], initialDate, finalDate)
+
+    l = om.keys(analyzer['dateIndex'], initialDate, finalDate)
     iterator = it.newIterator(l)
-    diccionario = {}
+    dicc_Severity = {'1':0,'2':0,'3':0,'4':0}
     accidents = 0
     while (it.hasNext(iterator)):
-        lista_values = it.next(iterator)
-        accidents += lt.size(lista_values["lstaccidents"])
-
-        if lista_values["lstaccidents"]["first"]["info"]["Severity"] in diccionario:
-            diccionario[lista_values["lstaccidents"]
-                        ["first"]["info"]["Severity"]] += 1
-        else:
-            diccionario[lista_values["lstaccidents"]
-                        ["first"]["info"]["Severity"]] = 1
-    return (accidents, diccionario)
-
+        lista_keys = it.next(iterator)
+        keys = om.get(analyzer["dateIndex"], lista_keys)
+        value = me.getValue(keys)
+        accidents += value['total']
+        dicc_Severity['1'] += value['1']
+        dicc_Severity['2'] += value['2']
+        dicc_Severity['3'] += value['3']
+        dicc_Severity['4'] += value['4']
+        
+    dic = {}
+    name = ""
+    number = 0
+    for re in dicc_Severity:
+        if dicc_Severity[re] > number:
+            name = re
+            number = dicc_Severity[re]
+    dic[name] = number
+    return (accidents, dic)
 
 # Requerimiento 4
+
+
 def getAccidentsByRangeState(analyzer, initialDate, finalDate):
     """
     Se desea conocer para un rango de fechas el estado que más accidentes tiene
     reportados. El usuario ingresa una fecha inicial y una fecha final en formato: YYYY MM DD. Se
     debe retornar la fecha con más accidentes reportados.
     """
-    l = om.values(analyzer['dateIndex'], initialDate, finalDate)
-    iterator = it.newIterator(l)
+    dicc_State = {}
+    total_keys = om.keys(analyzer['dateIndex'], initialDate, finalDate)
+    iterador = it.newIterator(total_keys)
+    date = ""  # fecha en la que ocurren más accidentes
+    mayor_cantidad_accidentes = 0  # mayor numero de accidentes en una fecha
+    while (it.hasNext(iterador)):  # iteramos las llaves
+        llave = it.next(iterador)
+        # obtenemos la cantidad de accidentes en una fecha
+        obtener = om.get(analyzer["dateIndex"], llave)
+        values = (me.getValue(obtener))["lstaccidents"]
+        cantidad = values["size"]
+        ite = it.newIterator(values)
+        while (it.hasNext(ite)):
+            valor = it.next(ite)
+            if valor["State"] in dicc_State:
+                dicc_State[valor["State"]] += 1
+            else:
+                dicc_State[valor["State"]] = 1
+
+        if cantidad > mayor_cantidad_accidentes:
+            mayor_cantidad_accidentes = cantidad  # asignamos el numero de accidentes
+            date = str(llave)  # asiganamos la fecha
+
     diccionario = {}
-    accidents = 0
-    while (it.hasNext(iterator)):
-        lista_values = it.next(iterator)
-        accidents += lt.size(lista_values["lstaccidents"])
+    name = ""
+    number = 0
+    for re in dicc_State:
+        if dicc_State[re] > number:
+            name = re
+            number = dicc_State[re]
+    diccionario[name] = number
+    return (date, diccionario)  # valor retornado
 
-        if lista_values["lstaccidents"]["first"]["info"]["State"] in diccionario:
-            diccionario[lista_values["lstaccidents"]
-                        ["first"]["info"]["State"]] += 1
-        else:
-            diccionario[lista_values["lstaccidents"]
-                        ["first"]["info"]["State"]] = 1
-    return (accidents, diccionario)
+
 # Requerimiento 5
-
-
 def getAccidentsByRangeHours(analyzer, initialDate, finalDate):
     """
     Se desea conocer para un rango de horas dado (hora inicial y hora final), el total de accidentes
     registrados agrupados por severidad Igualmente se desea conocer el porcentaje que ese número
     representa contra el total de accidentes reportados.
     """
-    pass
+    l = om.keys(analyzer['timeIndex'], str(initialDate), str(finalDate)) #Se obtiene las llaves del arbol que se cubren ese rando de horas
+    iterator = it.newIterator(l)
+    dicc_Severity = {'1':0,'2':0,'3':0,'4':0}
+    accidents = 0
+    while (it.hasNext(iterator)): #Recorremos las llaves de nuestro rango de horas
+        lista_keys = it.next(iterator)
+        keys = om.get(analyzer["timeIndex"], lista_keys) #Obtenemos la pareja llave-valor
+
+        value = me.getValue(keys)   #Obtenemos el valor (diccionario) perteneciente a esa llave
+        dicc_Severity['1'] += value['1']
+        dicc_Severity['2'] += value['2']
+        dicc_Severity['3'] += value['3']
+        dicc_Severity['4'] += value['4']
+        accidents += value["total"]
+
+    total = analyzer['accidents']['size']
+    return dicc_Severity['1'], dicc_Severity['2'], dicc_Severity['3'], dicc_Severity['4'], (accidents/total)*100
+
 # Requerimiento 6
-
-
-def getAccidentsGeographicalArea(analyzer, length, latitude, radio):
+def getAccidentsGeographicalArea(analyzer, latitude, length, radio):
     """
     Dada una latitud y una longitud, tomado como punto central, y un radio dado (por
     ejemplo una milla), informar cuántos accidentes en total se han producido en
@@ -316,7 +347,30 @@ def getAccidentsGeographicalArea(analyzer, length, latitude, radio):
     agrupado por el día de la semana en la que han ocurrido los accidentes y el total de
     accidentes reportados.
     """
-    pass
+    dayDicc = {'Sunday':0,'Monday':0,'Tuesday':0,'Wednesday':0,'Thursday':0,'Friday':0,'Saturday':0}
+    iterator = it.newIterator(analyzer['accidents'])
+    while (it.hasNext(iterator)): #Se recorre toda la lista accidentes
+        valor = it.next(iterator)
+        latp = valor['Start_Lat']
+        lonp = valor['Start_Lng']
+        if pointCircle(radio, latitude, length, latp, lonp): #Revisa si el accidente se encuntra dentro del radio
+            date = valor['Start_Time']
+            day = datetime.datetime.strptime(date,'%Y-%m-%d %H:%M:%S').strftime('%A') #Obtenemos el dia de la semana de la fecha
+            dayDicc[day] += 1
+    return dayDicc['Monday'], dayDicc['Tuesday'], dayDicc['Wednesday'], dayDicc['Thursday'], dayDicc['Friday'], dayDicc['Saturday'], dayDicc['Sunday']
+
+def pointCircle(radio, latc, lonc, latp, lonp):
+    # Formula de Haversine
+    R = 6371 # Radio de la tierra en Km
+    dLat = aRadianes(float(latp)-float(latc)) # Pasar a radianes
+    dLon = aRadianes(float(lonp)-float(lonc))
+    a = math.sin(dLat/2)**2 + math.cos(aRadianes(float(latc))) * math.cos(aRadianes(float(latp))) * math.sin(dLon/2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = R * c # Distancia en km
+    return d <= float(radio)
+
+def aRadianes(deg):
+    return deg * (float(math.pi)/180.0)
 
 # ==============================
 # Funciones de Comparacion

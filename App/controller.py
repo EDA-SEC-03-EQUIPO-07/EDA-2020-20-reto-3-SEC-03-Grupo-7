@@ -160,15 +160,12 @@ def getAccidentsByRangeHours(analyzer, initialDate, finalDate):
     registrados agrupados por severidad Igualmente se desea conocer el porcentaje que ese número
     representa contra el total de accidentes reportados. 
     """
-    initialDate = datetime.datetime.strptime(initialDate, '%h-%m-%s')
-    finalDate = datetime.datetime.strptime(finalDate, '%h-%m-%s')
-    return model.getAccidentsByRangeHours(analyzer, initialDate.date(),
-                                          finalDate.date())
+    return model.getAccidentsByRangeHours(analyzer, initialDate, finalDate)
 
 # Requerimiento 6
 
 
-def getAccidentsGeographicalArea(analyzer, length, latitude, radio):
+def getAccidentsGeographicalArea(analyzer, latitude, length, radio):
     """
     Dada una latitud y una longitud, tomado como punto central, y un radio dado (por
     ejemplo una milla), informar cuántos accidentes en total se han producido en
@@ -176,5 +173,4 @@ def getAccidentsGeographicalArea(analyzer, length, latitude, radio):
     agrupado por el día de la semana en la que han ocurrido los accidentes y el total de
     accidentes reportados. 
     """
-    return model.getAccidentsByRangeHours(analyzer, initialDate.date(),
-                                          finalDate.date())
+    return model.getAccidentsGeographicalArea(analyzer, latitude, length, radio)
