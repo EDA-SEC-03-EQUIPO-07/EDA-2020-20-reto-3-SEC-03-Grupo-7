@@ -35,9 +35,12 @@ operación seleccionada.
 # ___________________________________________________
 #  Ruta a los archivos
 # ___________________________________________________
+# C:\Users\home\Desktop\LABORATORIOS\Reto3-202020-Template\Data\us_accidents_dis_2017.csv
+# C:\Users\home\Desktop\LABORATORIOS\Reto3-202020-Template\Data\us_accidents_dis_2016.csv
 # us_accidents_small.csv
 # us_accidents_dis_2017.csv
 # us_accidents_dis_2016.csv
+# US_Accidents_Dec19.csv
 accidentsfile = 'us_accidents_small.csv'
 
 # ___________________________________________________
@@ -54,6 +57,9 @@ def printMenu():
     print("3- Accidentes en una fecha determinada")
     print("4- Accidentes antes de una fechas determinada")
     print("5- Accidentes en un rango de fechas determinada")
+    print("6- Accidentes en un Estado en un rango de fechas determinada")
+    print("7- Accidentes por rango de horas")
+    print("8- Accidente de una zona")
     print("0- Salir")
     print("*******************************************")
 
@@ -70,26 +76,29 @@ while True:
         # cont es el controlador que se usará de acá en adelante
         cont = controller.init()
     elif int(inputs[0]) == 2:
-        print("\nCargando información de accidentes ....")
-        controller.loadData(cont, accidentsfile)
-        print('Accidentes cargados: ' + str(controller.accidentsSize(cont)))
-        print('Altura del arbol: ' + str(controller.indexHeight(cont)))
-        print('Elementos en el arbol: ' + str(controller.indexSize(cont)))
-        print('Menor Llave: ' + str(controller.minKey(cont)))
-        print('Mayor Llave: ' + str(controller.maxKey(cont)))
+        if controller.accidentsSize(cont) < 2:
+            print("\nCargando información de accidentes ....")
+            controller.loadData(cont, accidentsfile)
+            print('Accidentes cargados: ' + str(controller.accidentsSize(cont)))
+            print('Altura del arbol: ' + str(controller.indexHeight(cont)))
+            print('Elementos en el arbol: ' + str(controller.indexSize(cont)))
+            print('Menor Llave: ' + str(controller.minKey(cont)))
+            print('Mayor Llave: ' + str(controller.maxKey(cont)))
+        else:
+            print('Los datos ya fueron cargados.\n')
 
     elif int(inputs[0]) == 3:
         print("\nBuscando accidentes en un fecha determinada: ")
         accidents_date = input("Ingrese la fecha para conocer los accidentes")
         number = controller.getCrimesByRangeCode(cont, accidents_date)
-        print("\n Total de crimenes en la fecha " +
+        print("\n Total de accidentes en la fecha " +
               accidents_date + " es: " + str(number))
 
     elif int(inputs[0]) == 4:
         print("\nBuscando accidentes en un fecha determinada: ")
         accidents_date = input("Ingrese la fecha para conocer los accidentes")
         number = controller.getAccidentsBeforeDate(cont, accidents_date)
-        print("\n Total de crimenes antes de la fecha " +
+        print("\n Total de accidentes antes de la fecha " +
               accidents_date + " es: " + str(number))
 
     elif int(inputs[0]) == 5:
@@ -98,8 +107,34 @@ while True:
         accidents_date_1 = input("Ingrese la fecha final")
         number = controller.getAccidentsByRange(
             cont, accidents_date, accidents_date_1)
-        print("\n Total de crimenes entre la fecha " +
+        print("\n Total de accidentes entre la fecha " +
               accidents_date + " y la fecha " + accidents_date_1 + " es: " + str(number))
+
+    elif int(inputs[0]) == 6:
+        print("\nBuscando accidentes en un Estado en un fecha determinada: ")
+        accidents_date = input("Ingrese la fecha inicial")
+        accidents_date_1 = input("Ingrese la fecha final")
+        number = controller.getAccidentsByRangeState(
+            cont, accidents_date, accidents_date_1)
+        print("\n Total de accidentes en un Estado entre la fecha " +
+              accidents_date + " y la fecha " + accidents_date_1 + " es: " + str(number))
+    elif int(inputs[0]) == 7:
+        print("\nBuscando accidentes en un rango horario: ")
+        accidents_date = input("Ingrese la hora inicial\n")
+        accidents_date_1 = input("Ingrese la hora final\n")
+        uno,dos,tres,cuatro,porcentaje = controller.getAccidentsByRangeHours(
+            cont, accidents_date, accidents_date_1)
+        print(f"\nTotal de accidentes entre el rango horario {accidents_date} y la fecha {accidents_date_1}" 
+        + f" es:\nTipo 1: {uno}\nTipo 2: {dos}\nTipo 3: {tres}\nTipo 4: {cuatro}\nLos cuales representan un {porcentaje}% de los accidentes totales.\nNOTA: Los rangos de horas usados fueron aproximados.\n")
+    elif int(inputs[0]) == 8:
+        print("\nBuscando accidentes en un zona demeterminada: ")
+        latitud = input("Ingrese la latitud\n")
+        longitud = input("Ingrese la longitud\n")
+        radio = input("Ingrese el radio de busqueda en Kilometros\n")
+        l,m,w,j,v,s,d = controller.getAccidentsGeographicalArea(cont, latitud, longitud, radio)
+        print(f"\nEn esta zona se han presentado los siguientes accidentes:\nLunes: {l}\nMartes: {m}\nMiercoles: {w}\nJueves: {j}\nViernes: {v}\nSabado: {s}\nDomingo: {d}\nTotal de accidentes: {l+m+w+j+v+s+d}.\n")
     else:
         sys.exit(0)
+
+
 sys.exit(0)
