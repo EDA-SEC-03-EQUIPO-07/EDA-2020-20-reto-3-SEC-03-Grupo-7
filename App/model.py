@@ -223,8 +223,7 @@ def getAccidentsBeforeDate(analyzer, initialDate):
     return re  # valor retornado
 
 
-# Requerimiento 3
-
+# requerimiento 3
 def getAccidentsByRange(analyzer, initialDate, finalDate):
     """
     Retorna el total de crimenes en un rango de fechas y indicando la categoría de
@@ -235,7 +234,7 @@ def getAccidentsByRange(analyzer, initialDate, finalDate):
 
     l = om.keys(analyzer['dateIndex'], initialDate, finalDate)
     iterator = it.newIterator(l)
-    dicc_Severity = {}
+    dic = {}
     accidents = 0
     while (it.hasNext(iterator)):
         lista_keys = it.next(iterator)
@@ -243,21 +242,17 @@ def getAccidentsByRange(analyzer, initialDate, finalDate):
         lista = me.getValue(keys)["lstaccidents"]
         cantidad = lista["size"]
         accidents += cantidad
-        itera = it.newIterator(lista)
-        while (it.hasNext(itera)):
-            values = it.next(itera)
-            if values["Severity"] in dicc_Severity:
-                dicc_Severity[values["Severity"]] += 1
-            else:
-                dicc_Severity[values["Severity"]] = 1
-    dic = {}
-    name = ""
-    number = 0
-    for re in dicc_Severity:
-        if dicc_Severity[re] > number:
-            name = re
-            number = dicc_Severity[re]
-    dic[name] = number
+        dicc_Severity = getCrimesByDate(analyzer, lista_keys)
+        name = ""
+        number = 0
+        for re in dicc_Severity:
+            if dicc_Severity[re] > number:
+                name = re
+                number = dicc_Severity[re]
+        if name in dic:
+            dic[name] += number
+        else:
+            dic[name] = number
     return (accidents, dic)
 
 # Requerimiento 4

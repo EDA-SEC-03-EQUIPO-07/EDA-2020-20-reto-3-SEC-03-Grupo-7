@@ -41,7 +41,7 @@ operación seleccionada.
 # us_accidents_dis_2017.csv
 # us_accidents_dis_2016.csv
 # US_Accidents_Dec19.csv
-accidentsfile = 'us_accidents_dis_2016.csv'
+accidentsfile = 'us_accidents_small.csv'
 
 # ___________________________________________________
 #  Menu principal
